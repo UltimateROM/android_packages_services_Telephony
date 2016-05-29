@@ -802,7 +802,7 @@ public class ImsConference extends Conference {
             PhoneAccountHandle phoneAccountHandle =
                     PhoneUtils.makePstnPhoneAccountHandle(mConferenceHost.getPhone());
             if (mConferenceHost.getPhone().getPhoneType() == PhoneConstants.PHONE_TYPE_GSM) {
-                GsmConnection c = new GsmConnection(originalConnection, false);
+                GsmConnection c = new GsmConnection(originalConnection);
                 // This is a newly created conference connection as a result of SRVCC
                 c.setConferenceSupported(true);
                 c.updateState();
