@@ -84,7 +84,6 @@ public class NotificationMgr {
     static final int DATA_DISCONNECTED_ROAMING_NOTIFICATION = 5;
     static final int SELECTED_OPERATOR_FAIL_NOTIFICATION = 6;
 
-
     static final int NOTIFICATION_ID_OFFSET = 50;
 
     // notification light default constants
@@ -291,8 +290,6 @@ public class NotificationMgr {
         PhoneLookup.DISPLAY_NAME,
         PhoneLookup._ID
     };
-
-
 
     /**
      * Re-creates the message waiting indicator (voicemail) notification if it is showing.  Used to

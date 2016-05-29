@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
- * Copyright (C) 2014 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +20,6 @@ import com.android.internal.telephony.Call;
 import com.android.internal.telephony.CallManager;
 import com.android.internal.telephony.CallerInfo;
 import com.android.internal.telephony.CallerInfoAsyncQuery;
-import com.android.internal.telephony.CallStateException;
 import com.android.internal.telephony.Connection;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
@@ -32,7 +30,6 @@ import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaDisplayInf
 import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaSignalInfoRec;
 import com.android.internal.telephony.cdma.SignalToneUtil;
 import com.android.internal.telephony.gsm.SuppServiceNotification;
-import com.android.internal.telephony.util.BlacklistUtils;
 
 import android.app.ActivityManagerNative;
 import android.bluetooth.BluetoothAdapter;
@@ -42,7 +39,6 @@ import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -54,7 +50,6 @@ import android.os.SystemProperties;
 import android.os.SystemVibrator;
 import android.os.Vibrator;
 import android.provider.CallLog.Calls;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.telephony.DisconnectCause;
@@ -388,57 +383,6 @@ public class CallNotifier extends Handler {
         if (VDBG) log("- onNewRingingConnection() done.");
     }
 
-    private static final String[] FAVORITE_PROJECTION = new String[] {
-        ContactsContract.PhoneLookup.STARRED
-    };
-    private static final String[] CONTACT_PROJECTION = new String[] {
-        ContactsContract.PhoneLookup.NUMBER
-    };
-
-    /**
-     * Helper function used to determine if calling number is from person in the Contacts
-     * Optionally, it can also check if the contact is a 'Starred'or favourite contact
-     */
-    private boolean isContact(String number, boolean checkFavorite) {
-        if (DBG) log("isContact(): checking if " + number + " is in the contact list.");
-
-        Uri lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                Uri.encode(number));
-        Cursor cursor = mApplication.getContentResolver().query(lookupUri,
-                checkFavorite ? FAVORITE_PROJECTION : CONTACT_PROJECTION,
-                ContactsContract.PhoneLookup.NUMBER + "=?",
-                new String[] { number }, null);
-
-        if (cursor == null) {
-            if (DBG) log("Couldn't query contacts provider");
-            return false;
-        }
-
-        try {
-            if (cursor.moveToFirst() && !checkFavorite) {
-                // All we care about is that the number is in the Contacts list
-                if (DBG) log("Number belongs to a contact");
-                return true;
-            }
-
-            // Either no result or we should check for favorite.
-            // In the former case the loop won't be entered.
-            while (!cursor.isAfterLast()) {
-                if (cursor.getInt(cursor.getColumnIndex(
-                        ContactsContract.PhoneLookup.STARRED)) == 1) {
-                    if (DBG) log("Number belongs to a favorite");
-                    return true;
-                }
-                cursor.moveToNext();
-            }
-        } finally {
-            cursor.close();
-        }
-
-        if (DBG) log("A match for the number wasn't found");
-        return false;
-    }
-
     /**
      * Determines whether or not we're allowed to present incoming calls to the
      * user, based on the capabilities and/or current state of the device.
@@ -580,6 +524,7 @@ public class CallNotifier extends Handler {
         } else {
             Log.w(LOG_TAG, "onDisconnect: null connection");
         }
+
         int autoretrySetting = 0;
         if ((c != null) &&
                 (c.getCall().getPhone().getPhoneType() == PhoneConstants.PHONE_TYPE_CDMA)) {
