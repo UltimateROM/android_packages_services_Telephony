@@ -112,11 +112,6 @@ final class GsmConnection extends TelephonyConnection {
         if ((getConnectionProperties() & PROPERTY_IS_DOWNGRADED_CONFERENCE) != 0) {
             properties |= PROPERTY_IS_DOWNGRADED_CONFERENCE;
         }
-        if (mIsForwarded) properties |= PROPERTY_WAS_FORWARDED;
-        if (mHeldRemotely) properties |= PROPERTY_HELD_REMOTELY;
-        if (mAdditionalCallForwarded) properties |= PROPERTY_ADDITIONAL_CALL_FORWARDED;
-        if (mDialingIsWaiting) properties |= PROPERTY_DIALING_IS_WAITING;
-        if (mRemoteIncomingCallsBarred) properties |= PROPERTY_REMOTE_INCOMING_CALLS_BARRED;
 
         return properties;
     }
