@@ -28,6 +28,7 @@ LOCAL_AAPT_FLAGS := \
     --extra-packages com.android.services.telephony.sip
 
 LOCAL_PACKAGE_NAME := TeleService
+LOCAL_DEX_PREOPT := false
 
 LOCAL_CERTIFICATE := platform
 LOCAL_PRIVILEGED_MODULE := true
